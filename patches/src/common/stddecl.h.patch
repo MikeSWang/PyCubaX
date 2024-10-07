@@ -1,0 +1,20 @@
+--- src/common/stddecl.h	2021-06-28 16:49:59
++++ patches/src/common/stddecl.h	2024-10-04 10:50:00
+@@ -57,7 +57,7 @@
+ 
+ #ifndef NDIM
+ #define NDIM t->ndim
+-#define MAXDIM 1024
++#define MAXDIM 1024*1024
+ #else
+ #define MAXDIM NDIM
+ #endif
+@@ -228,7 +228,7 @@
+ #endif
+ #endif
+ #endif
+-  
++
+ #define FrameAlloc(t, who) \
+   SHM_ONLY(ShmAlloc(t, who) else) \
+   MemAlloc(t->frame, t->nframe*SAMPLESIZE);
