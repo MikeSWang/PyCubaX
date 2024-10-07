@@ -1,0 +1,58 @@
+# Build/compilation
+build/
+
+## Bytecode
+__pycache__/
+*.py[cod]
+
+## Objects
+*.o
+
+## Static libraries
+*.a
+
+## Shared libraries (C/C++ extensions)
+*.so
+*.dylib
+
+## Executables
+*.out
+
+# Distributions
+bdist/
+dist/
+sdist/
+*.dist-info/
+
+## Eggs
+develop-eggs/
+eggs/
+.eggs/
+*.egg-info/
+*.egg
+
+## Wheels
+wheelhouse/
+wheels/
+*.whl
+
+# Development
+## Editors/explorers
+.vscode/
+.DS_Store
+
+# Exclusions
+## Patch rejection
+**/*.rej
+**/*.rej.orig
+
+## Configuration
+config.h
+config.log
+config.status
+
+## Makefile
+makefile
+
+# Exceptions
+## Directories: .gitkeep (empty directories)
