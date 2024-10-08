@@ -1,0 +1,102 @@
+[build-system]
+build-backend = 'setuptools.build_meta'
+requires = [
+    'setuptools>=61.0',
+    'setuptools_scm>=6.4',
+]
+
+[project]
+name = 'PyCubaX'
+description = "A new Python wrapper for Cuba: a library for multidimensional numerical integration"
+authors = [
+    {name = 'Mike S Wang'},
+    {name = 'Johannes Buchner'},
+]
+maintainers = [
+    {name = 'Mike S Wang', email = "32841762+MikeSWang@users.noreply.github.com"},
+]
+license = {file = "LICENCE"}
+classifiers = [
+    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: C",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+]
+dynamic = [
+  'version',
+  'readme',
+]
+requires-python = '>=3.10'
+
+[project.urls]
+Source = "https://github.com/MikeSWang/PyCubaX"
+Changelog = "https://github.com/MikeSWang/PyCubaX/blob/main/CHANGELOG.md"
+
+# [tool.setuptools]
+# packages = ["pycuba"]
+# package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["py*"]
+namespaces = false
+
+[tool.setuptools.dynamic]
+# version = {attr = 'pycuba.__version__'}
+readme = {file = "README.md"}
+
+[tool.setuptools_scm]
+
+[tool.autopep8]
+in-place = true
+recursive = true
+aggressive = 3
+max_line_length = 79
+ignore = "E226,"
+
+[tool.codespell]
+count = true
+quiet-level = 3
+
+[tool.ruff]
+target-version = 'py310'
+line-length = 79
+exclude = [
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".ipynb_checkpoints",
+    ".nox",
+    ".pyenv",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+
+[tool.ruff.lint]
+fixable = ['ALL']
+unfixable = []
+
+[tool.ruff.format]
+quote-style = 'preserve'
+indent-style = 'space'
+line-ending = 'auto'
+skip-magic-trailing-comma = true
+docstring-code-format = false
+docstring-code-line-length = 'dynamic'
