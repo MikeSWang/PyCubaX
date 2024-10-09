@@ -1,0 +1,74 @@
+# Provide continuous delivery (CD).
+#
+# CD deliverables currently include:
+# - Cuba shared library (built from C sources);
+#
+name: continuous-delivery
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+.post[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+.dev[0-9]+'
+    paths:
+      - .github/workflows/cd.yml
+  workflow_dispatch:
+    inputs:
+      rebuild_sharedlib:
+        description: 'Rebuild shared library'
+        type: boolean
+        default: false
+        required: false
+      version_tag:
+        description: 'Version tag for delivery'
+        type: string
+        required: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build_sharedlib:
+    name: Build shared library
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        compiler: [gcc, clang]
+        exclude:
+          - os: ubuntu-latest
+            compiler: clang
+
+    runs-on: ${{ matrix.os }}
+
+    timeout-minutes: 20
+
+    if: >
+      github.event_name != 'workflow_dispatch' ||
+      github.event.inputs.rebuild_sharedlib == 'true'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Override compiler (macOS)
+        if: runner.os == 'macOS'
+        run: |
+            if [ "${{ matrix.compiler }}" == 'gcc' ]; then
+                export CC=$(find $(brew --prefix gcc)/bin -type f -name 'gcc*')
+            fi
+            if [ "${{ matrix.compiler }}" == 'clang' ]; then
+                export CC=$(brew --prefix llvm@15)/bin/clang
+            fi
+
+      - name: Build shared library
+        run: ./make_sharedlib.sh
+
+      - name: Upload shared library
+        uses: actions/upload-artifact@v4
+        with:
+          name: libcuba-${{ github.ref_name }}-${{ runner.os }}-${{ matrix.compiler }}
+          path: dist/libcuba.*
