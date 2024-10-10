@@ -55,7 +55,7 @@ __license__ = 'GPL-3.0-or-later'
 try:
     __version__ = version('pycubax')
 except PackageNotFoundError:
-    __version__ = '4.2.2'  # fallback version number
+    __version__ = 'cuba-4.2.2'  # fallback version number
 
 
 # ========================================================================
@@ -78,22 +78,31 @@ elif platform.system() == 'Linux':
 else:
     raise OSError(f"Unsupported OS: {platform.system()}")
 
-libcuba_path_default: str = os.path.join(_dist_dir, 'libcuba' + _lib_suffix)
-"""Default path to the Cuba library."""
+_libcuba_file = 'libcuba' + _lib_suffix
+_libcuba_path_repo: str = os.path.join(_dist_dir, _libcuba_file)
+_libcuba_path_explicit: str = os.getenv('LIBCUBA', _libcuba_path_repo)
 
-libcuba_path: str = os.getenv('LIBCUBA', libcuba_path_default)
-"""Path to the Cuba library."""
+_libcuba_source: str = ""
 
 libcuba: CDLL = None
-"""Dynamic library object for the Cuba library."""
+"""Cuba library object."""
 
 try:
-    libcuba = cdll.LoadLibrary(libcuba_path)
+    # Load from the system's search paths.
+    libcuba = cdll.LoadLibrary(_libcuba_file)
+    _libcuba_source = f"{libcuba._name} (system)"
 except OSError:
-    raise OSError(
-        f"Could not load 'libcuba{_lib_suffix}' from: {libcuba_path}. "
-        "Please set the 'LIBCUBA' environment variable to the correct path."
-    )
+    # Load from the explicit path.
+    try:
+        libcuba = cdll.LoadLibrary(_libcuba_path_explicit)
+        _libcuba_source = os.path.abspath(libcuba._name)
+    except OSError:
+        raise OSError(
+            f"Could not load {_libcuba_file} from system search paths or "
+            f"the explicit path: {_libcuba_path_explicit}. "
+            "Please set the 'LIBCUBA' environment variable "
+            "to the correct path."
+        )
 
 
 # ========================================================================
@@ -441,7 +450,7 @@ def demo():
 
     def print_pkginfo():
         print("PyCubaX version:", __version__)
-        print("LibCuba path:", os.path.abspath(libcuba_path))
+        print("LibCuba source:", _libcuba_source)
         print()
 
     def print_demo_header(name):
