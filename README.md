@@ -1,5 +1,8 @@
 # PyCuba(X): a new Python wrapper for the Cuba library
 
+[![Release](https://img.shields.io/github/v/release/MikeSWang/PyCubaX?display_name=tag&sort=semver&logo=Git)](https://github.com/MikeSWang/PyCubaX/releases/latest)
+[![CI](https://img.shields.io/github/actions/workflow/status/MikeSWang/PyCubaX/ci.yml?label=ci&logo=GitHubActions)](https://github.com/MikeSWang/PyCubaX/actions/workflows/ci.yml)
+
 The PyCuba(X) package provides a Python wrapper for the Cuba library, which
 offers a choice of four independent routines for multidimensional
 numerical integration: Vegas, Suave, Divonne, and Cuhre.
@@ -28,10 +31,10 @@ to install in local editable mode.
 
 > [!NOTE]
 > This automatically creates the shared library in the ``dist/`` folder.
-> If for any reason the shared library is moved/removed or stored at a
-> different location, `export LIBCUBA=<path-to-libcuba>` (in shell)
-> or `import os; os.environ['LIBCUBA'] = <path-to-libcuba>` (in Python)
-> before importing ``pycuba``.
+> If the library remains there or is in system search paths, it should be
+> automatically discoverable; if for any reason it is moved to a
+> non-standard location, set the environmental variable `LIBCUBA` to
+> its path before importing ``pycuba``.
 
 ## Usage
 
@@ -41,12 +44,20 @@ Simply import the desired integration routine, e.g.
 from pycuba import Vegas
 ```
 
+As a demo, run
+
+```py
+from pycuba import demo; demo()
+```
+
 See PyCuba
 [documentation](https://johannesbuchner.github.io/PyMultiNest/pycuba.html)
 and [repository](https://github.com/JohannesBuchner/PyMultiNest) for
 more details.
 
-See also the note above regarding the discoverability of ``libcuba``.
+> [!TIP]
+> If you encounter an error about loading the Cuba library, see the note above
+> regarding the discoverability of ``libcuba``.
 
 ## Acknowledgement
 
