@@ -44,12 +44,20 @@ Simply import the desired integration routine, e.g.
 from pycuba import Vegas
 ```
 
+As a demo, run
+
+```py
+from pycuba import demo; demo()
+```
+
 See PyCuba
 [documentation](https://johannesbuchner.github.io/PyMultiNest/pycuba.html)
 and [repository](https://github.com/JohannesBuchner/PyMultiNest) for
 more details.
 
-See also the note above regarding the discoverability of ``libcuba``.
+> [!TIP]
+> If you encounter an error about loading the Cuba library, see the note above
+> regarding the discoverability of ``libcuba``.
 
 ## Acknowledgement
 
