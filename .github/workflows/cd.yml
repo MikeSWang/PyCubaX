@@ -1,0 +1,84 @@
+# Provide continuous delivery (CD).
+#
+# CD deliverables currently include:
+# - Cuba shared library (built from C sources);
+#
+name: continuous-delivery
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+.post[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+.dev[0-9]+'
+    paths:
+      - .github/workflows/cd.yml
+  workflow_dispatch:
+    inputs:
+      rebuild_sharedlib:
+        description: 'Rebuild shared library'
+        type: boolean
+        default: false
+        required: false
+      version_tag:
+        description: 'Version tag for delivery'
+        type: string
+        required: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build_sharedlib:
+    name: Build shared library
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        compiler: [gcc, clang]
+        exclude:
+          - os: ubuntu-latest
+            compiler: clang
+          - os: macos-latest
+            compiler: gcc
+
+    runs-on: ${{ matrix.os }}
+
+    timeout-minutes: 20
+
+    if: >
+      github.event_name != 'workflow_dispatch' ||
+      github.event.inputs.rebuild_sharedlib == 'true'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build shared library (Linux)
+        if: runner.os == 'Linux'
+        run: ./make_sharedlib.sh
+
+      - name: Build shared library (macOS)
+        if: runner.os == 'macOS'
+        run: |
+            if [ "${{ matrix.compiler }}" == 'gcc' ]; then
+                export CC=gcc-14
+            elif [ "${{ matrix.compiler }}" == 'clang' ]; then
+                export CC=$(brew --prefix llvm@15)/bin/clang
+            fi
+            ./make_sharedlib.sh
+
+      - name: Name shared library
+        run: |
+          version_str=$(echo "${{ github.ref_name }}" | sed 's/^v//')
+          os_str=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
+          build_str=$(echo "${{ matrix.compiler }}" | tr '[:upper:]' '[:lower:]')
+          echo ARTEFACT_FILENAME="libcuba-${version_str}-${os_str}-${build_str}" >> "${GITHUB_ENV}"
+
+      - name: Upload shared library
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTEFACT_FILENAME }}
+          path: dist/libcuba.*

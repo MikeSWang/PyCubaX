@@ -1,0 +1,97 @@
+# Perform continuous integration (CI) checks.
+#
+# CI tasks include but are not limited to:
+# - development builds (on all supported OS);
+# - unit/integration tests;
+# - code linting.
+#
+name: continuous-integration
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - src/**
+      - patches/**
+      - cuba.h
+      - make*
+      - config*
+      - setup.py
+      - pyproject.toml
+      - .gitignore
+      - .github/workflows/ci.yml
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - src/**
+      - patches/**
+      - cuba.h
+      - make*
+      - config*
+      - setup.py
+      - pyproject.toml
+      - .gitignore
+      - .github/workflows/ci.yml
+  pull_request_review:
+    types: [submitted, edited]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test-dev:
+    name: Build & test (in dev mode)
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Python build requirements
+        run: python -m pip install --upgrade pip
+
+      - name: Build and install
+        run: python -m pip install --editable . -vvv
+
+      - name: Demo test
+        run: python -c "from pycuba import demo; demo()"
+
+  lint:
+    name: Lint
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Python linting requirements
+        run: python -m pip install flake8
+
+      - name: Lint
+        run: |
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --exit-zero --statistics
